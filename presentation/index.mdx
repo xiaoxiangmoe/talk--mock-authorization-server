@@ -1,0 +1,195 @@
+
+
+# Mock Authorization Server
+
+—— ZHAO Jinxiang
+
+---
+
+## What this talk is
+
+* OAuth 2.0 [RFC 6749](https://tools.ietf.org/html/rfc6749)
+* JWT [RFC 7519](https://tools.ietf.org/html/rfc7519)
+
+---
+
+## What this talk is not
+
+* Write a production-ready authorization server
+* Write a login Web Page
+
+---
+
+## OAuth 2.0
+
+[RFC 6749 - The OAuth 2.0 Authorization Framework - IETF Tools](https://tools.ietf.org/html/rfc6749)
+
+*  The OAuth 2.0 authorization framework enables a third-party application to obtain limited access to an HTTP service, either on behalf of a resource owner by orchestrating an approval interaction between the resource owner and the HTTP service, or by allowing the third-party application to obtain access on its own behalf.
+
+---
+
+## Roles
+
+### resource owner
+
+*  An entity capable of granting access to a protected resource. When the resource owner is a person, it is referred to as an end-user.
+
+
+### resource server
+
+* The server hosting the protected resources, capable of accepting and responding to protected resource requests using access tokens.
+
+---
+
+## Roles 
+
+### client
+
+* An application making protected resource requests on behalf of the resource owner and with its authorization. The term "client" does not imply any particular implementation characteristics (e.g., whether the application executes on a server, a desktop, or other devices).
+
+### authorization server
+
+* The server issuing access tokens to the client after successfully authenticating the resource owner and obtaining authorization.
+
+---
+
+## Protocol Flow
+
+
+```
+     +--------+                               +---------------+     
+     |        |--(A)- Authorization Request ->|   Resource    |     
+     |        |                               |     Owner     |     
+     |        |<-(B)-- Authorization Grant ---|               |     
+     |        |                               +---------------+     
+     |        |
+     |        |                               +---------------+     
+     |        |--(C)-- Authorization Grant -->| Authorization |     
+     | Client |                               |     Server    |     
+     |        |<-(D)----- Access Token -------|               |     
+     |        |                               +---------------+     
+     |        |
+     |        |                               +---------------+     
+     |        |--(E)----- Access Token ------>|    Resource   |     
+     |        |                               |     Server    |     
+     |        |<-(F)--- Protected Resource ---|               |     
+     +--------+                               +---------------+     
+```
+
+---
+
+## Obtaining Authorization
+
+* Authorization Code Grant
+* Implicit Grant
+* Resource Owner Password Credentials Grant
+* Client Credentials Grant
+* Extension Grants
+
+---
+
+## Resource Owner Password Credentials Grant
+
+```
+     +----------+
+     | Resource |
+     |  Owner   |
+     |          |
+     +----------+
+          v
+          |    Resource Owner
+         (A) Password Credentials
+          |
+          v
+     +---------+                                  +---------------+     
+     |         |>--(B)---- Resource Owner ------->|               |
+     |         |         Password Credentials     | Authorization |
+     | Client  |                                  |     Server    |
+     |         |<--(C)---- Access Token ---------<|               |
+     |         |    (w/ Optional Refresh Token)   |               |
+     +---------+                                  +---------------+
+```
+
+---
+
+## Authorization Request and Response
+
+``` js
+await fetch('https://ant-design-pro-next.netlify.com/.netlify/functions/authorize',{
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  body: "username=username@qq.com&password=username@qq.com&grant_type=password"
+}).then(x=>x.json())
+```
+
+---
+
+## Refreshing an Access Token
+
+```js
+await fetch('https://ant-design-pro-next.netlify.com/.netlify/functions/authorize',{
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  body: "grant_type=refresh_token&refresh_token="+
+  "eyJ1c2VybmFtZSI6InVzZXJuYW1lQHFxLmNvbSIsInBhc3N3b3JkIjoidXNlcm5hbWVAcXEuY29tIn0="
+}).then(x=>x.json())
+```
+
+---
+
+## JWT
+
+[RFC 7519 - JSON Web Token (JWT) - IETF Tools](https://tools.ietf.org/html/rfc7519)
+
+---
+
+## JWS
+
+[RFC 7515 - JSON Web Signature (JWS) - IETF Tools](https://tools.ietf.org/html/rfc7515)
+
+* JSON Web Signature (JWS) represents content secured with digital signatures or Message Authentication Codes (MACs) using JSON-based data structures.
+
+---
+
+## JWS
+
+* JOSE Header
+* JWS Payload
+* JWS Signature
+
+---
+
+## JWT Claims
+
+* "iss" (Issuer) Claim
+* "sub" (Subject) Claim
+* "aud" (Audience) Claim
+* "exp" (Expiration Time) Claim
+* "nbf" (Not Before) Claim
+* "iat" (Issued At) Claim
+* "jti" (JWT ID) Claim
+
+---
+
+## Error Response
+
+* invalid_request
+* invalid_client
+* invalid_grant
+* unauthorized_client
+* unsupported_grant_type
+* invalid_scope
+
+---
+
+## Lambda functions on Netlify
+
+---
+
+## The End
+
+[https://github.com/xiaoxiangmoe/ant-design-pro-next/blob/master/packages/lambda/src/entrypoints/authorize.ts](https://github.com/xiaoxiangmoe/ant-design-pro-next/blob/master/packages/lambda/src/entrypoints/authorize.ts)
